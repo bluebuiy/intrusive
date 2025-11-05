@@ -18,6 +18,11 @@ struct intrusive_int
 
 };
 
+using list_memb_chain = intrusive::member_chain<
+    intrusive::member_pointer<intrusive_int, intrusive::list_inject<intrusive_int>, &intrusive_int::list1>
+>;
+
+
 std::ostream& operator<<(std::ostream& out, intrusive_int const & v)
 {
     out << v.i;
@@ -29,8 +34,8 @@ std::unique_ptr<intrusive_int> make_value(int i)
     return std::make_unique<intrusive_int>(i);
 }
 
-template <typename T, intrusive::list_inject<T> T::*inject>
-void print_list(intrusive::list<T, inject> & list)
+template <typename T, typename MembChain>
+void print_list(intrusive::list<T, MembChain> & list)
 {
     T* current = list.head;
     while (current != nullptr)
@@ -41,8 +46,8 @@ void print_list(intrusive::list<T, inject> & list)
     std::cout << std::endl;
 }
 
-template <typename T, intrusive::list_inject<T> T::*inject>
-void print_list_back(intrusive::list<T, inject> & list)
+template <typename T, typename MembChain>
+void print_list_back(intrusive::list<T, MembChain> & list)
 {
     T* current = list.tail;
     while (current != nullptr)
@@ -55,7 +60,8 @@ void print_list_back(intrusive::list<T, inject> & list)
 
 void test_insert_after()
 {
-    intrusive::list<intrusive_int, &intrusive_int::list1> list;
+
+    intrusive::list<intrusive_int, list_memb_chain> list;
 
     std::vector<std::unique_ptr<intrusive_int>> elements;
 
@@ -78,7 +84,7 @@ void test_insert_after()
 
 void test_insert_before()
 {
-    intrusive::list<intrusive_int, &intrusive_int::list1> list;
+    intrusive::list<intrusive_int, list_memb_chain> list;
 
     std::vector<std::unique_ptr<intrusive_int>> elements;
 
@@ -100,7 +106,7 @@ void test_insert_before()
 void test_stuff()
 {
     std::cout << "push_back" << std::endl;
-    intrusive::list<intrusive_int, &intrusive_int::list1> list;
+    intrusive::list<intrusive_int, list_memb_chain> list;
 
     std::vector<std::unique_ptr<intrusive_int>> elements;
     for (int i = 0; i < 10; ++i)

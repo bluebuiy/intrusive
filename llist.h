@@ -5,6 +5,8 @@
     Copyright Maxwell Orth 2025
 */
 
+#include "nest_mem.h"
+
 namespace intrusive
 {
     template <typename T>
@@ -14,7 +16,9 @@ namespace intrusive
         T* right = nullptr;
     };
 
-    template <typename T, list_inject<T> T::*inject>
+    //template <typename T, list_inject<T> T::*inject>
+    template <typename T, typename MemberChain>
+        requires member_chain_resolves<list_inject<T>*, T, MemberChain>
     struct list
     {
 
@@ -23,7 +27,8 @@ namespace intrusive
 
         static list_inject<T>* resolve(T* t)
         {
-            return &(t->*inject);
+            return MemberChain::resolve(t);
+            //return &(t->*inject);
         }
 
         void push_front(T* t)
@@ -117,6 +122,11 @@ namespace intrusive
             {
                 tail = info->left;
             }
+        }
+
+        void unlink(T* t)
+        {
+            remove(t);
         }
     };
 }
